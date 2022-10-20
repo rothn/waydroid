@@ -40,6 +40,28 @@ def start(args):
                 "/dev/graphics",
                 "/dev/pvr_sync",
                 "/dev/ion",
+
+                # Camera
+                "/dev/media0",
+                "/dev/media1",
+                "/dev/media2",
+                "/dev/media3",
+                "/dev/media4",
+                "/dev/media5",
+                "/dev/media6",
+                "/dev/media7",
+                "/dev/media8",
+                "/dev/media9",
+                "/dev/v4l-subdev0",
+                "/dev/v4l-subdev1",
+                "/dev/v4l-subdev2",
+                "/dev/v4l-subdev3",
+                "/dev/v4l-subdev4",
+                "/dev/v4l-subdev5",
+                "/dev/v4l-subdev6",
+                "/dev/v4l-subdev7",
+                "/dev/v4l-subdev8",
+                "/dev/v4l-subdev9",
             ]
 
             # Framebuffers
