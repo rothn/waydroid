@@ -131,6 +131,19 @@ def generate_nodes_lxc_config(args):
 
     return nodes
 
+LXC_APPARMOR_PROFILE = "lxc-waydroid"
+def get_apparmor_status(args):
+    enabled = False
+    if shutil.which("aa-status"):
+        enabled = (tools.helpers.run.user(args, ["aa-status", "--quiet"], check=False) == 0)
+    if not enabled and shutil.which("systemctl"):
+        enabled = (tools.helpers.run.user(args, ["systemctl", "is-active", "-q", "apparmor"], check=False) == 0)
+    try:
+        with open("/sys/kernel/security/apparmor/profiles", "r") as f:
+            enabled &= (LXC_APPARMOR_PROFILE in f.read())
+    except:
+        enabled = False
+    return enabled
 
 def set_lxc_config(args):
     lxc_path = tools.config.defaults["lxc"] + "/waydroid"
@@ -158,6 +171,9 @@ def set_lxc_config(args):
     tools.helpers.run.user(args, command)
     command = ["cp", "-fpr", seccomp_profile, lxc_path + "/waydroid.seccomp"]
     tools.helpers.run.user(args, command)
+    if get_apparmor_status(args):
+        command = ["sed", "-i", "-E", "/lxc.aa_profile|lxc.apparmor.profile/ s/unconfined/{}/g".format(LXC_APPARMOR_PROFILE), lxc_path + "/config"]
+        tools.helpers.run.user(args, command)
 
     nodes = generate_nodes_lxc_config(args)
     config_nodes_tmp_path = args.work + "/config_nodes"
@@ -254,7 +270,7 @@ def make_base_props(args):
 
     opengles = tools.helpers.props.host_get(args, "ro.opengles.version")
     if opengles == "":
-        opengles = "196608"
+        opengles = "196609"
     props.append("ro.opengles.version=" + opengles)
 
     if args.images_path not in tools.config.defaults["preinstalled_images_paths"]:
